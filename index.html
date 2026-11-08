@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ali | Telegram bot va sayt yaratish</title>
+<meta name="description" content="Python dasturchi Ali: Telegram botlar va saytlar yaratish.">
+<style>html,body{margin:0;background:#0f1226}</style>
+</head>
+<body>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+#ali{--bg:#0f1226;--panel:#171b36;--line:#2a3058;--tx:#e8ebff;--mut:#9aa3d0;--blue:#2aabee;--coral:#ff7a6b;
+font-family:'Manrope',system-ui,sans-serif;color:var(--tx);background:var(--bg);position:relative;overflow:hidden;line-height:1.6}
+#ali *{box-sizing:border-box;margin:0;padding:0}
+#ali canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#ali .w{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:0 22px}
+#ali nav{position:sticky;top:0;z-index:5;background:rgba(15,18,38,.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+#ali nav .w{display:flex;justify-content:space-between;align-items:center;height:60px;gap:12px}
+#ali nav b{font-family:'Unbounded',sans-serif;font-weight:700;font-size:16px}
+#ali .links{display:flex;align-items:center;gap:18px}
+#ali .links a{color:var(--mut);text-decoration:none;font-size:14px}
+#ali .links a:hover{color:var(--tx)}
+#ali .lang{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+#ali .lang button{background:none;border:0;color:var(--mut);font:700 13px 'Manrope',sans-serif;padding:6px 11px;cursor:pointer}
+#ali .lang button.on{background:var(--blue);color:#06121c}
+#ali h1,#ali h2{font-family:'Unbounded',sans-serif;font-weight:700;line-height:1.15}
+#ali h1{font-size:clamp(32px,6vw,62px);margin-bottom:20px;max-width:760px}
+#ali h2{font-size:clamp(24px,3.4vw,34px);margin-bottom:28px}
+#ali p{color:var(--mut)}
+#ali .hero{padding:110px 0 100px}
+#ali .hero p{margin-bottom:30px;max-width:480px;font-size:17px}
+#ali .btn{display:inline-block;background:var(--blue);color:#06121c;padding:14px 26px;border-radius:12px;text-decoration:none;border:0;font:700 15px 'Manrope',sans-serif;cursor:pointer;transition:transform .15s,background .15s}
+#ali .btn:hover{transform:translateY(-2px);background:#5bc2f5}
+#ali .btn:focus-visible,#ali input:focus-visible,#ali textarea:focus-visible,#ali a:focus-visible,#ali .lang button:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
+#ali .demo{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+#ali .chat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;min-height:320px;display:flex;flex-direction:column;gap:10px}
+#ali .chat .top{font-size:13px;color:var(--mut);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:4px}
+#ali .chat .top i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:8px}
+#ali .m{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;animation:pop .25s ease}
+#ali .m.u{align-self:flex-end;background:var(--blue);color:#06121c;border-bottom-right-radius:4px}
+#ali .m.b{align-self:flex-start;background:#232850;color:var(--tx);border-bottom-left-radius:4px}
+@keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+#ali section{padding:60px 0}
+#ali .row{display:grid;grid-template-columns:220px 1fr;gap:24px;padding:26px 0;border-top:1px solid var(--line)}
+#ali .row:last-child{border-bottom:1px solid var(--line)}
+#ali .row h3{font-size:18px;font-weight:700}
+#ali .row h3 span{display:block;font-weight:500;font-size:13px;color:var(--coral);margin-top:4px}
+#ali .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+#ali .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;transition:border-color .2s,transform .2s}
+#ali .card:hover{border-color:var(--blue);transform:translateY(-3px)}
+#ali .card h3{font-size:17px;margin-bottom:8px}
+#ali .tag{display:inline-block;font-size:12px;border:1px solid var(--coral);color:var(--coral);border-radius:20px;padding:2px 10px;margin-bottom:12px}
+#ali .tag.ok{border-color:#4ade80;color:#4ade80}
+#ali .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+#ali .steps div{border-left:2px solid var(--blue);padding-left:16px;counter-increment:s}
+#ali .steps div:before{content:counter(s);font-family:'Unbounded',sans-serif;color:var(--blue);font-size:22px}
+#ali .steps b{display:block;margin:4px 0}
+#ali form{display:grid;gap:14px;max-width:560px}
+#ali label{font-size:14px;color:var(--mut)}
+#ali input,#ali textarea{width:100%;margin-top:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 14px;color:var(--tx);font:500 15px 'Manrope',sans-serif}
+#ali textarea{min-height:120px;resize:vertical}
+#ali #ok{color:#4ade80;font-size:14px;min-height:20px}
+#ali footer{padding:30px 0 40px;border-top:1px solid var(--line);font-size:13px;color:var(--mut)}
+@media(max-width:800px){#ali .demo,#ali .row,#ali .grid,#ali .steps{grid-template-columns:1fr}#ali .hero{padding:60px 0}#ali .links a{display:none}}
+@media(prefers-reduced-motion:reduce){#ali *{animation:none!important;transition:none!important}}
+</style>
+
+<div id="ali">
+<canvas id="bg" aria-hidden="true"></canvas>
+<nav><div class="w"><b>Ali</b>
+<div class="links"><a href="#xizmat" data-t="n1"></a><a href="#loyiha" data-t="n2"></a><a href="#aloqa" data-t="n3"></a>
+<div class="lang" role="group" aria-label="Til / Язык / Language"><button data-l="uz">UZ</button><button data-l="ru">RU</button><button data-l="en">EN</button></div></div>
+</div></nav>
+
+<div class="w">
+<header class="hero">
+<h1 data-t="h1"></h1>
+<p data-t="sub"></p>
+<a class="btn" href="#aloqa" data-t="cta"></a>
+</header>
+
+<section id="xizmat">
+<h2 data-t="s1"></h2>
+<div class="row"><h3><span style="color:var(--tx);font-size:18px;margin:0" data-t="r1t"></span><span data-t="r1s"></span></h3><p data-t="r1p"></p></div>
+<div class="row"><h3><span style="color:var(--tx);font-size:18px;margin:0" data-t="r2t"></span><span data-t="r2s"></span></h3><p data-t="r2p"></p></div>
+<div class="row"><h3><span style="color:var(--tx);font-size:18px;margin:0" data-t="r3t"></span><span data-t="r3s"></span></h3><p data-t="r3p"></p></div>
+</section>
+
+<section>
+<div class="demo">
+<div><h2 data-t="d1"></h2><p data-t="d2"></p></div>
+<div class="chat" id="chat" aria-label="Demo"><div class="top"><i></i><span data-t="cn"></span></div></div>
+</div>
+</section>
+
+<section id="loyiha">
+<h2 data-t="p0"></h2>
+<div class="card" style="max-width:620px"><span class="tag" data-t="tg"></span><h3 data-t="a1t"></h3><p data-t="a1p"></p></div>
+</section>
+
+<section>
+<h2 data-t="y0"></h2>
+<div class="grid">
+<div class="card"><h3 data-t="y1t"></h3><p data-t="y1p"></p></div>
+<div class="card"><h3 data-t="y2t"></h3><p data-t="y2p"></p></div>
+<div class="card"><h3 data-t="y3t"></h3><p data-t="y3p"></p></div>
+</div>
+</section>
+
+<section>
+<h2 data-t="q0"></h2>
+<div class="steps">
+<div><b data-t="q1t"></b><p data-t="q1p"></p></div>
+<div><b data-t="q2t"></b><p data-t="q2p"></p></div>
+<div><b data-t="q3t"></b><p data-t="q3p"></p></div>
+<div><b data-t="q4t"></b><p data-t="q4p"></p></div>
+</div>
+</section>
+
+<section id="aloqa">
+<h2 data-t="f0"></h2>
+<form id="f">
+<label><span data-t="l1"></span><input name="n" required autocomplete="name"></label>
+<label><span data-t="l2"></span><input name="p" type="tel" required autocomplete="tel" placeholder="+998"></label>
+<label><span data-t="l3"></span><input name="e" type="email" autocomplete="email"></label>
+<label><span data-t="l4"></span><textarea name="m" required></textarea></label>
+<button class="btn" type="submit" data-t="send"></button>
+<div id="ok" role="status"></div>
+</form>
+</section>
+</div>
+
+<footer><div class="w" data-t="foot"></div></footer>
+</div>
+
+<script>
+(function(){
+var TG='ugahub';
+var D={
+uz:{n1:"Xizmatlar",n2:"Men haqimda",n3:"Aloqa",h1:"Telegram botlar va saytlar yaratamiz",sub:"Do'kon, kafe yoki xizmat uchun bot va sayt kerakmi? G'oyangizni aytasiz, men uni ishlaydigan holatga keltiraman.",cta:"Buyurtma berish",
+s1:"Nima qilaman",r1t:"Telegram bot",r1s:"buyurtma, ombor, aloqa",r1p:"Mijozlardan buyurtma qabul qiladigan, xabar yuboradigan, mahsulot qoldig'ini hisoblaydigan botlar. Admin uchun alohida kirish ham qo'shaman.",
+r2t:"Sayt",r2s:"vizitka va landing",r2p:"Biznes yoki shaxsiy sayt: telefon va kompyuterda chiroyli ko'rinadigan, tez ochiladigan sahifa.",
+r3t:"Avtomatlashtirish",r3s:"vaqtni tejash",r3p:"Takrorlanadigan ishlarni (hisobot, eslatma, javoblar) botga topshiramiz.",
+d1:"Bot qanday ishlaydi",d2:"Mijoz botga yozadi, bot savol beradi va javobni o'zi qayta ishlaydi. Namuna: yozilish boti.",cn:"Yozilish boti",
+chat:["Salom, ertaga yozilmoqchiman","Salom! Qaysi vaqt qulay: 12:00 yoki 15:00?","15:00","Ismingiz?","Ali","Yozildingiz: ertaga, 15:00. Oldin eslatma yuboraman."],
+p0:"Men haqimda",tg:"Frilanser",a1t:"Boshlovchi dasturchi",a1p:"Men Python'da dasturlayman va endigina frilanser sifatida ish boshlayapman. Hozircha buyurtmalarim yo'q, shuning uchun birinchi buyurtmangizga alohida e'tibor beraman.",
+y0:"Nega menga yozish qulay",y1t:"Tez javob",y1p:"Xabaringizga imkon qadar tez javob beraman.",y2t:"Aniq reja",y2p:"Boshlashdan oldin nima qilinishi va qancha vaqt ketishini kelishib olamiz.",y3t:"Tuzatishlar",y3p:"Birinchi variantni ko'rib, o'zgartirishlaringizni kiritaman.",
+q0:"Qanday ishlaymiz",q1t:"Yozasiz",q1p:"G'oyangizni qisqa aytasiz.",q2t:"Kelishamiz",q2p:"Reja, muddat va narx.",q3t:"Yarataman",q3p:"Birinchi variantni ko'rsataman.",q4t:"Topshiraman",q4p:"Tuzatib, ishga tushiramiz.",
+f0:"Menga xabar yoki taklif yuboring",l1:"Ism familya",l2:"Telefon raqamingiz",l3:"Email",l4:"Taklif va xabarlar",send:"Yuborish",ok:"Telegram ochilmoqda, xabarni yuboring.",foot:"© 2026 Ali. Telegram bot va sayt yaratish.",lb:["Ism","Telefon","Email"]},
+ru:{n1:"Услуги",n2:"Обо мне",n3:"Контакты",h1:"Создаём Telegram-боты и сайты",sub:"Нужен бот или сайт для магазина, кафе или услуги? Вы рассказываете идею, я довожу её до рабочего результата.",cta:"Заказать",
+s1:"Что я делаю",r1t:"Telegram-бот",r1s:"заказы, склад, связь",r1p:"Боты, которые принимают заказы, отправляют уведомления и считают остатки товара. Могу добавить отдельный вход для администратора.",
+r2t:"Сайт",r2s:"визитка и лендинг",r2p:"Сайт для бизнеса или личный: красиво выглядит на телефоне и компьютере, быстро открывается.",
+r3t:"Автоматизация",r3s:"экономия времени",r3p:"Передаём боту повторяющиеся задачи: отчёты, напоминания, ответы.",
+d1:"Как работает бот",d2:"Клиент пишет боту, бот задаёт вопросы и сам обрабатывает ответы. Пример: бот для записи.",cn:"Бот для записи",
+chat:["Здравствуйте, хочу записаться на завтра","Привет! Какое время удобно: 12:00 или 15:00?","15:00","Как вас зовут?","Али","Вы записаны: завтра, 15:00. Пришлю напоминание заранее."],
+p0:"Обо мне",tg:"Фрилансер",a1t:"Начинающий программист",a1p:"Я пишу на Python и только начинаю работать фрилансером. Пока у меня нет заказов, поэтому уделю вашему первому заказу особое внимание.",
+y0:"Почему со мной удобно",y1t:"Быстрый ответ",y1p:"Отвечаю на сообщения как можно скорее.",y2t:"Чёткий план",y2p:"До начала договариваемся, что делаем и сколько это займёт.",y3t:"Правки",y3p:"Вы смотрите первый вариант, я вношу изменения.",
+q0:"Как мы работаем",q1t:"Вы пишете",q1p:"Коротко рассказываете идею.",q2t:"Договариваемся",q2p:"План, сроки и цена.",q3t:"Я делаю",q3p:"Показываю первый вариант.",q4t:"Сдаю",q4p:"Правим и запускаем.",
+f0:"Отправьте мне сообщение или предложение",l1:"Имя и фамилия",l2:"Ваш номер телефона",l3:"Email",l4:"Предложение или сообщение",send:"Отправить",ok:"Открываем Telegram, отправьте сообщение.",foot:"© 2026 Ali. Создание Telegram-ботов и сайтов.",lb:["Имя","Телефон","Email"]},
+en:{n1:"Services",n2:"About me",n3:"Contact",h1:"We build Telegram bots and websites",sub:"Need a bot or a website for your shop, cafe or service? You tell me the idea, I turn it into something that works.",cta:"Order now",
+s1:"What I do",r1t:"Telegram bot",r1s:"orders, stock, contact",r1p:"Bots that take orders, send notifications and track product stock. I can add a separate admin login too.",
+r2t:"Website",r2s:"business card and landing",r2p:"A business or personal site that looks good on phone and desktop and loads fast.",
+r3t:"Automation",r3s:"save time",r3p:"We hand repetitive tasks (reports, reminders, replies) over to a bot.",
+d1:"How a bot works",d2:"The customer writes to the bot, the bot asks questions and handles the answers itself. Example: a booking bot.",cn:"Booking bot",
+chat:["Hi, I'd like to book for tomorrow","Hello! Which time works: 12:00 or 15:00?","15:00","Your name?","Ali","Booked: tomorrow, 15:00. I'll send a reminder beforehand."],
+p0:"About me",tg:"Freelancer",a1t:"Beginner developer",a1p:"I code in Python and I'm just starting out as a freelancer. I don't have any orders yet, so I'll give your first order extra attention.",
+y0:"Why it's easy to work with me",y1t:"Quick reply",y1p:"I answer your messages as soon as I can.",y2t:"Clear plan",y2p:"Before we start, we agree on what gets done and how long it takes.",y3t:"Revisions",y3p:"You review the first version and I make your changes.",
+q0:"How we work",q1t:"You write",q1p:"Tell me your idea in a few words.",q2t:"We agree",q2p:"Plan, deadline and price.",q3t:"I build",q3p:"I show you the first version.",q4t:"I deliver",q4p:"We fix details and launch.",
+f0:"Send me a message or an offer",l1:"Full name",l2:"Your phone number",l3:"Email",l4:"Your offer or message",send:"Send",ok:"Opening Telegram, send the message there.",foot:"© 2026 Ali. Telegram bots and websites.",lb:["Name","Phone","Email"]}
+};
+var root=document.getElementById('ali'),chat=document.getElementById('chat'),lang='uz',timer;
+try{var s=localStorage.getItem('ali_lang');if(D[s])lang=s}catch(e){}
+
+function playChat(){
+  clearTimeout(timer);
+  var top=chat.firstChild;chat.innerHTML='';chat.appendChild(top);
+  var L=D[lang].chat,i=0;
+  (function next(){
+    if(i>=L.length)return;
+    var d=document.createElement('div');d.className='m '+(i%2?'b':'u');
+    if(i==3||i==4){d.className='m '+(i==3?'b':'u')}
+    d.textContent=L[i];chat.appendChild(d);i++;
+    timer=setTimeout(next,1300);
+  })();
+}
+function setLang(l){
+  lang=l;
+  try{localStorage.setItem('ali_lang',l)}catch(e){}
+  root.querySelectorAll('[data-t]').forEach(function(el){var v=D[l][el.getAttribute('data-t')];if(v)el.textContent=v});
+  root.querySelectorAll('[data-l]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-l')===l)});
+  document.getElementById('ok').textContent='';
+  playChat();
+}
+root.querySelectorAll('[data-l]').forEach(function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-l'))})});
+setLang(lang);
+
+/* Orqa fon */
+var c=document.getElementById('bg'),x=c.getContext('2d'),W,H,P=[],still=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+function size(){W=c.width=innerWidth;H=c.height=innerHeight}
+size();addEventListener('resize',size);
+for(var k=0;k<60;k++)P.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4});
+var lastY=scrollY,boost=0;
+addEventListener('scroll',function(){boost=Math.min(6,Math.abs(scrollY-lastY)*.15);lastY=scrollY});
+function mix(a,b,t){return Math.round(a+(b-a)*t)}
+function draw(){
+  x.clearRect(0,0,W,H);
+  var max=document.documentElement.scrollHeight-H||1,t=Math.min(1,scrollY/max);
+  var col=mix(42,255,t)+','+mix(171,122,t)+','+mix(238,107,t);
+  boost*=.92;
+  for(var a=0;a<P.length;a++){
+    var p=P[a];
+    if(!still){p.x+=p.vx*(1+boost);p.y+=p.vy*(1+boost)-boost*.15}
+    if(p.x<0||p.x>W)p.vx*=-1;
+    if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+    x.beginPath();x.arc(p.x,p.y,2,0,6.28);x.fillStyle='rgba('+col+',.7)';x.fill();
+    for(var b=a+1;b<P.length;b++){
+      var q=P[b],dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;
+      if(d<16000){x.strokeStyle='rgba('+col+','+(.22*(1-d/16000))+')';x.beginPath();x.moveTo(p.x,p.y);x.lineTo(q.x,q.y);x.stroke()}
+    }
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* Forma */
+document.getElementById('f').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  var f=ev.target,lb=D[lang].lb,t=lb[0]+': '+f.n.value+'\n'+lb[1]+': '+f.p.value+(f.e.value?'\n'+lb[2]+': '+f.e.value:'')+'\n\n'+f.m.value;
+  document.getElementById('ok').textContent=D[lang].ok;
+  window.open('https://t.me/'+TG+'?text='+encodeURIComponent(t),'_blank');
+});
+})();
+</script>
+
+</body>
+</html>
