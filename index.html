@@ -31,6 +31,8 @@ h2{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:600;margin-bottom:2rem;letter-
 #sky img{position:absolute;left:0;top:0;mix-blend-mode:multiply;will-change:transform;opacity:.85}
 main,footer{position:relative;z-index:1}
 .ord{max-width:640px}
+[hidden]{display:none!important}
+#plist{display:grid;gap:1.2rem;margin-top:1.2rem}
 /* hero */
 .hero{display:flex;align-items:center;min-height:80vh}.hero>div:not(.jp){max-width:760px}
 .hero h1{font-size:clamp(2rem,5.4vw,4rem);line-height:1.08;font-weight:800;letter-spacing:-.03em}
@@ -58,20 +60,10 @@ main,footer{position:relative;z-index:1}
 .proj h3{font-size:1.6rem}
 .proj p{margin:.6rem 0 0;max-width:52ch}
 /* reviews */
-.rev{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:2rem;align-items:start}
 form{display:grid;gap:.8rem}
 input,textarea{width:100%;font:inherit;padding:.8rem 1rem;border:1px solid var(--s2);border-radius:6px;background:var(--w);color:var(--ink)}
 textarea{min-height:120px;resize:vertical}
-.rate{display:flex;gap:.2rem}
-.rate button{font-size:1.6rem;line-height:1;background:none;border:0;cursor:pointer;color:var(--s2)}
-.rate button.on{color:var(--ink)}
 .note{font-size:.9rem;color:var(--s4);min-height:1.4em}
-#list{display:grid;gap:.9rem}
-.item{padding:1.1rem 1.3rem;border:1px solid var(--s2);border-radius:6px;background:var(--s1)}
-.item b{font-weight:600}
-.item .st{letter-spacing:.15em;margin-left:.5rem}
-.item small{display:block;color:var(--s3);margin-top:.5rem}
-.item p{margin-top:.3rem;overflow-wrap:anywhere}
 .del{margin-top:.6rem;font:600 .8rem Onest,sans-serif;padding:.3rem .8rem;border:1px solid var(--ink);background:var(--w);border-radius:99px;cursor:pointer}
 .empty{color:var(--s4);padding:1.4rem;border:1px dashed var(--s3);border-radius:6px}
 /* contact */
@@ -111,7 +103,6 @@ dialog h3{margin-bottom:1rem;font-size:1.05rem}
     <a href="#xizmat" data-i="n1"></a>
     <a href="#loyiha" data-i="n2"></a>
     <a href="#buyurtma" data-i="n5"></a>
-    <a href="#sharhlar" data-i="n3"></a>
     <a href="#aloqa" data-i="n4"></a>
   </nav>
   <div class="lang" role="group" aria-label="Language">
@@ -145,6 +136,14 @@ dialog h3{margin-bottom:1rem;font-size:1.05rem}
       <div><h3>RNB Estate</h3><p data-i="p_d"></p></div>
       <a class="btn" href="https://rnbstate.github.io/rnbestate/" target="_blank" rel="noopener" data-i="p_b"></a>
     </div>
+    <div id="plist"></div>
+    <form id="pf" class="ord" hidden autocomplete="off" style="margin-top:1.6rem">
+      <input id="pt" maxlength="80" required data-ph="pr_title">
+      <textarea id="px" maxlength="400" data-ph="pr_text" style="min-height:90px"></textarea>
+      <input id="pu" required data-ph="pr_url">
+      <button class="btn" type="submit" data-i="pr_add"></button>
+      <p class="note" id="pn" role="status"></p>
+    </form>
   </section>
 
   <section id="buyurtma">
@@ -157,20 +156,6 @@ dialog h3{margin-bottom:1rem;font-size:1.05rem}
       <button class="btn" type="submit" data-i="o_send"></button>
       <p class="note" id="onote" role="status"></p>
     </form>
-  </section>
-
-  <section id="sharhlar">
-    <h2 data-i="r_t"></h2>
-    <div class="rev">
-      <form id="f" autocomplete="off">
-        <input id="nm" maxlength="40" required data-ph="r_name">
-        <div class="rate" id="rate" role="radiogroup" aria-label="Rating"></div>
-        <textarea id="tx" maxlength="400" required data-ph="r_text"></textarea>
-        <button class="btn" type="submit" data-i="r_send"></button>
-        <p class="note" id="note" role="status"></p>
-      </form>
-      <div id="list"></div>
-    </div>
   </section>
 
   <section id="aloqa" class="contact">
@@ -194,9 +179,11 @@ dialog h3{margin-bottom:1rem;font-size:1.05rem}
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
 /* ===== SOZLAMALAR / SETTINGS ===== */
-const ADMIN_PASS = '123';          // admin paroli (kodda ko‘rinadi, uzoq parol qo‘ying)
+const ADMIN_EMAIL = '';            // Firebase’da yaratgan admin emailingiz
+const LOCAL_PASS = '123ali123';    // faqat Firebase ulanmaganda (sinov rejimi)
 const ORDER_KEY = '';              // web3forms.com access key (zakazlar emailga keladi)
 const FIREBASE_CONFIG = null;      // Firebase config shu yerga: { apiKey:"...", projectId:"...", ... }
 /* ================================= */
@@ -205,7 +192,7 @@ const IMG={"skull": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEtCAYAA
 Object.entries(IMG).forEach(([k,v])=>document.documentElement.style.setProperty('--'+k,'url('+v+')'));
 
 const T = {
-uz:{n1:'Xizmatlar',n2:'Loyiha',n3:'Sharhlar',n4:'Aloqa',n5:'Buyurtma',o_t:'Buyurtma qoldiring',o_name:'Ismingiz',o_phone:'Telefon raqamingiz',o_email:'Email (ixtiyoriy)',o_msg:'Buyurtma haqida izoh: nima kerak?',o_send:'Buyurtma yuborish',o_ok:'Buyurtma yuborildi. Tez orada bog‘lanaman.',o_err:'Yuborib bo‘lmadi. Telegramdan yozing: @ugahub',o_tg:'Telegram ochildi: xabarni yuboring.',
+uz:{n1:'Xizmatlar',n2:'Loyiha',n3:'Sharhlar',n4:'Aloqa',n5:'Buyurtma',pr_title:'Loyiha nomi',pr_text:'Izoh: loyiha haqida qisqacha',pr_url:'Loyiha havolasi (https://...)',pr_add:'Loyiha qo‘shish',pr_bad:'Havola noto‘g‘ri.',pr_err:'Saqlab bo‘lmadi. Qayta urinib ko‘ring.',o_t:'Buyurtma qoldiring',o_name:'Ismingiz',o_phone:'Telefon raqamingiz',o_email:'Email (ixtiyoriy)',o_msg:'Buyurtma haqida izoh: nima kerak?',o_send:'Buyurtma yuborish',o_ok:'Buyurtma yuborildi. Tez orada bog‘lanaman.',o_err:'Yuborib bo‘lmadi. Telegramdan yozing: @ugahub',o_tg:'Telegram ochildi: xabarni yuboring.',
  h1:'Telegram botlar va saytlar yaratib beraman',
  sub:'Men Ali, Python dasturchiman. Biznesingiz uchun bot va sayt tayyorlayman: oddiy, tez va tushunarli.',
  cta:'Telegramda yozish',cta2:'Loyihani ko‘rish',
@@ -215,8 +202,8 @@ uz:{n1:'Xizmatlar',n2:'Loyiha',n3:'Sharhlar',n4:'Aloqa',n5:'Buyurtma',o_t:'Buyur
  r_t:'Sharhlar',r_name:'Ismingiz',r_text:'Sharhingizni yozing',r_send:'Sharh yuborish',
  r_empty:'Hozircha sharh yo‘q. Birinchi bo‘lib yozing.',r_thanks:'Sharh qo‘shildi.',r_wait:'Keyingi sharhni biroz kutib yuboring.',r_pick:'Baho tanlang.',r_err:'Yuborib bo‘lmadi. Qayta urinib ko‘ring.',
  c_t:'Aloqa',c_copy:'Nusxalash',c_done:'Nusxalandi',
- a_t:'Admin paneli',a_pass:'Parol',a_in:'Kirish',a_bad:'Parol noto‘g‘ri.',a_out:'Chiqish',a_del:'O‘chirish',a_on:'Admin rejimi: sharhlarni o‘chirish mumkin',a_local:'Firebase ulanmagan: sharhlar faqat shu brauzerda saqlanadi.'},
-ru:{n1:'Услуги',n2:'Проект',n3:'Отзывы',n4:'Контакты',n5:'Заказ',o_t:'Оставьте заявку',o_name:'Ваше имя',o_phone:'Номер телефона',o_email:'Email (необязательно)',o_msg:'Комментарий к заказу: что нужно сделать?',o_send:'Отправить заказ',o_ok:'Заказ отправлен. Скоро свяжусь с вами.',o_err:'Не удалось отправить. Напишите в Telegram: @ugahub',o_tg:'Открылся Telegram: отправьте сообщение.',
+ a_t:'Admin paneli',a_pass:'Parol',a_in:'Kirish',a_bad:'Parol noto‘g‘ri.',a_out:'Chiqish',a_del:'O‘chirish',a_on:'Admin rejimi: loyiha qo‘shish va o‘chirish mumkin',a_local:'Firebase ulanmagan: loyihalar faqat shu brauzerda saqlanadi.'},
+ru:{n1:'Услуги',n2:'Проект',n3:'Отзывы',n4:'Контакты',n5:'Заказ',pr_title:'Название проекта',pr_text:'Комментарий: коротко о проекте',pr_url:'Ссылка на проект (https://...)',pr_add:'Добавить проект',pr_bad:'Неверная ссылка.',pr_err:'Не удалось сохранить. Попробуйте ещё раз.',o_t:'Оставьте заявку',o_name:'Ваше имя',o_phone:'Номер телефона',o_email:'Email (необязательно)',o_msg:'Комментарий к заказу: что нужно сделать?',o_send:'Отправить заказ',o_ok:'Заказ отправлен. Скоро свяжусь с вами.',o_err:'Не удалось отправить. Напишите в Telegram: @ugahub',o_tg:'Открылся Telegram: отправьте сообщение.',
  h1:'Делаю Telegram-боты и сайты',
  sub:'Я Али, Python-разработчик. Создаю ботов и сайты для вашего бизнеса: просто, быстро и понятно.',
  cta:'Написать в Telegram',cta2:'Смотреть проект',
@@ -226,8 +213,8 @@ ru:{n1:'Услуги',n2:'Проект',n3:'Отзывы',n4:'Контакты',
  r_t:'Отзывы',r_name:'Ваше имя',r_text:'Напишите отзыв',r_send:'Отправить отзыв',
  r_empty:'Пока нет отзывов. Напишите первый.',r_thanks:'Отзыв добавлен.',r_wait:'Подождите немного перед следующим отзывом.',r_pick:'Выберите оценку.',r_err:'Не удалось отправить. Попробуйте ещё раз.',
  c_t:'Контакты',c_copy:'Скопировать',c_done:'Скопировано',
- a_t:'Панель администратора',a_pass:'Пароль',a_in:'Войти',a_bad:'Неверный пароль.',a_out:'Выйти',a_del:'Удалить',a_on:'Режим админа: можно удалять отзывы',a_local:'Firebase не подключён: отзывы хранятся только в этом браузере.'},
-en:{n1:'Services',n2:'Project',n3:'Reviews',n4:'Contact',n5:'Order',o_t:'Place an order',o_name:'Your name',o_phone:'Phone number',o_email:'Email (optional)',o_msg:'Order comment: what do you need?',o_send:'Send order',o_ok:'Order sent. I’ll get back to you soon.',o_err:'Could not send. Message me on Telegram: @ugahub',o_tg:'Telegram opened: send the message.',
+ a_t:'Панель администратора',a_pass:'Пароль',a_in:'Войти',a_bad:'Неверный пароль.',a_out:'Выйти',a_del:'Удалить',a_on:'Режим админа: можно добавлять и удалять проекты',a_local:'Firebase не подключён: проекты хранятся только в этом браузере.'},
+en:{n1:'Services',n2:'Project',n3:'Reviews',n4:'Contact',n5:'Order',pr_title:'Project name',pr_text:'Comment: a short description',pr_url:'Project link (https://...)',pr_add:'Add project',pr_bad:'Invalid link.',pr_err:'Could not save. Try again.',o_t:'Place an order',o_name:'Your name',o_phone:'Phone number',o_email:'Email (optional)',o_msg:'Order comment: what do you need?',o_send:'Send order',o_ok:'Order sent. I’ll get back to you soon.',o_err:'Could not send. Message me on Telegram: @ugahub',o_tg:'Telegram opened: send the message.',
  h1:'I build Telegram bots and websites',
  sub:'I’m Ali, a Python developer. I make bots and sites for your business: simple, fast and clear.',
  cta:'Message on Telegram',cta2:'See the project',
@@ -237,7 +224,7 @@ en:{n1:'Services',n2:'Project',n3:'Reviews',n4:'Contact',n5:'Order',o_t:'Place a
  r_t:'Reviews',r_name:'Your name',r_text:'Write your review',r_send:'Send review',
  r_empty:'No reviews yet. Be the first to write one.',r_thanks:'Review added.',r_wait:'Please wait a moment before the next review.',r_pick:'Pick a rating.',r_err:'Could not send. Try again.',
  c_t:'Contact',c_copy:'Copy',c_done:'Copied',
- a_t:'Admin panel',a_pass:'Password',a_in:'Sign in',a_bad:'Wrong password.',a_out:'Sign out',a_del:'Delete',a_on:'Admin mode: you can delete reviews',a_local:'Firebase is not connected: reviews are stored in this browser only.'}
+ a_t:'Admin panel',a_pass:'Password',a_in:'Sign in',a_bad:'Wrong password.',a_out:'Sign out',a_del:'Delete',a_on:'Admin mode: you can add and delete projects',a_local:'Firebase is not connected: projects are stored in this browser only.'}
 };
 const $=s=>document.querySelector(s);
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -263,60 +250,62 @@ $('#cp').onclick=async()=>{
   const b=$('#cp');b.textContent=T[lang].c_done;setTimeout(()=>b.textContent=T[lang].c_copy,1600);
 };
 
-/* rating */
-const rate=$('#rate');
-for(let i=1;i<=5;i++){const b=document.createElement('button');b.type='button';b.textContent='★';b.setAttribute('role','radio');b.setAttribute('aria-label',i+'/5');
-  b.onclick=()=>{rating=i;[...rate.children].forEach((x,j)=>x.classList.toggle('on',j<i))};rate.append(b)}
-
-/* reviews: Firebase (shared) or localStorage (one browser) */
-if(FIREBASE_CONFIG && window.firebase){firebase.initializeApp(FIREBASE_CONFIG);db=firebase.firestore();}
-function fmt(ts){const d=ts&&ts.toDate?ts.toDate():new Date(ts||Date.now());return d.toLocaleDateString(lang==='uz'?'uz-UZ':lang==='ru'?'ru-RU':'en-GB')}
-function loadLocal(){try{items=JSON.parse(store.get('reviews')||'[]')}catch(e){items=[]}render()}
-if(db){db.collection('reviews').orderBy('ts','desc').limit(50).onSnapshot(s=>{items=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()},()=>{})}
-else loadLocal();
-
+/* projects: Firebase (shared with everyone, only admin can write) or localStorage (preview) */
+let auth=null;
+if(FIREBASE_CONFIG && window.firebase){firebase.initializeApp(FIREBASE_CONFIG);db=firebase.firestore();auth=firebase.auth()}
+function okUrl(u){try{const x=new URL(/^https?:\/\//i.test(u)?u:'https://'+u);return /^https?:$/.test(x.protocol)?x.href:null}catch(e){return null}}
+function saveLocal(){store.set('projects',JSON.stringify(items))}
+function setAdmin(v){admin=v;$('#bar2').classList.toggle('on',v);$('#pf').hidden=!v;render()}
 function render(){
-  const box=$('#list');box.textContent='';
-  if(!items.length){const p=document.createElement('p');p.className='empty';p.textContent=T[lang].r_empty;box.append(p);return}
+  const box=$('#plist');box.textContent='';
   items.forEach(r=>{
-    const d=document.createElement('div');d.className='item';
-    const n=document.createElement('b');n.textContent=r.name;
-    const s=document.createElement('span');s.className='st';s.textContent='★'.repeat(r.rating||0);
-    const p=document.createElement('p');p.textContent=r.text;
-    const m=document.createElement('small');m.textContent=fmt(r.ts);
-    d.append(n,s,p,m);
-    if(admin){const x=document.createElement('button');x.className='del';x.textContent=T[lang].a_del;x.onclick=()=>remove(r.id);d.append(x)}
-    box.append(d);
+    const c=document.createElement('div');c.className='card proj';
+    const o=document.createElement('i');o.className='orn tl';const g=document.createElement('i');g.className='gl tr';
+    const w=document.createElement('div');
+    const h=document.createElement('h3');h.textContent=r.title;
+    const p=document.createElement('p');p.textContent=r.text||'';
+    w.append(h,p);
+    if(admin){const x=document.createElement('button');x.className='del';x.textContent=T[lang].a_del;x.onclick=()=>remove(r.id);w.append(x)}
+    const a=document.createElement('a');a.className='btn';a.target='_blank';a.rel='noopener';a.href=okUrl(r.url)||'#';a.textContent=T[lang].p_b;
+    c.append(o,g,w,a);box.append(c);
   });
 }
 async function remove(id){
   if(!admin)return;
-  if(db){try{await db.collection('reviews').doc(id).delete()}catch(e){}}
-  else{items=items.filter(r=>r.id!==id);store.set('reviews',JSON.stringify(items));render()}
-}
-$('#f').onsubmit=async e=>{
-  e.preventDefault();const note=$('#note'),t=T[lang];
-  if(!rating){note.textContent=t.r_pick;return}
-  const last=+store.get('lastRev')||0;
-  if(Date.now()-last<30000){note.textContent=t.r_wait;return}
-  const rec={name:$('#nm').value.trim().slice(0,40),text:$('#tx').value.trim().slice(0,400),rating};
-  if(!rec.name||!rec.text)return;
   try{
-    if(db){rec.ts=firebase.firestore.FieldValue.serverTimestamp();await db.collection('reviews').add(rec)}
-    else{rec.ts=Date.now();rec.id='l'+rec.ts;items.unshift(rec);store.set('reviews',JSON.stringify(items));render()}
-    store.set('lastRev',Date.now());note.textContent=t.r_thanks;
-    $('#f').reset();rating=0;[...rate.children].forEach(x=>x.classList.remove('on'));
-  }catch(err){note.textContent=t.r_err}
+    if(db)await db.collection('projects').doc(id).delete();
+    else{items=items.filter(r=>r.id!==id);saveLocal();render()}
+  }catch(e){}
+}
+$('#pf').onsubmit=async e=>{
+  e.preventDefault();const n=$('#pn');
+  const rec={title:$('#pt').value.trim().slice(0,80),text:$('#px').value.trim().slice(0,400),url:okUrl($('#pu').value.trim())};
+  if(!rec.url){n.textContent=T[lang].pr_bad;return}
+  if(!rec.title)return;
+  try{
+    if(db){rec.ts=firebase.firestore.FieldValue.serverTimestamp();await db.collection('projects').add(rec)}
+    else{rec.ts=Date.now();rec.id='l'+rec.ts;items.push(rec);saveLocal();render()}
+    n.textContent='';$('#pf').reset();
+  }catch(err){n.textContent=T[lang].pr_err}
 };
+if(db){
+  db.collection('projects').orderBy('ts','asc').limit(100).onSnapshot(sn=>{items=sn.docs.map(d=>Object.assign({id:d.id},d.data()));render()},()=>{});
+  auth.onAuthStateChanged(u=>setAdmin(!!u&&u.email===ADMIN_EMAIL));
+}else{try{items=JSON.parse(store.get('projects')||'[]')}catch(e){items=[]}render()}
 
 /* hidden admin */
 const dlg=$('#adm');
 $('#hid').onclick=()=>{if(admin)return;$('#an').textContent='';$('#ap').value='';dlg.showModal();$('#ap').focus()};
-$('#af').onsubmit=e=>{
-  if($('#ap').value===ADMIN_PASS){admin=true;$('#bar2').classList.add('on');render()}
-  else{e.preventDefault();$('#an').textContent=T[lang].a_bad}
+$('#af').onsubmit=async e=>{
+  e.preventDefault();const pw=$('#ap').value;
+  try{
+    if(auth)await auth.signInWithEmailAndPassword(ADMIN_EMAIL,pw);
+    else if(pw===LOCAL_PASS)setAdmin(true);
+    else throw 0;
+    dlg.close();
+  }catch(err){$('#an').textContent=T[lang].a_bad}
 };
-$('#out').onclick=()=>{admin=false;$('#bar2').classList.remove('on');render()};
+$('#out').onclick=()=>{auth?auth.signOut():setAdmin(false)};
 
 /* order form */
 $('#of').onsubmit=async e=>{
