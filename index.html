@@ -266,7 +266,10 @@ function render(){
     c.append(o,g,w,a);box.append(c);
   });
 }
-async function loadPublic(){try{const r=await fetch('projects.json?'+Date.now());if(r.ok){const d=await r.json();if(Array.isArray(d)){items=d;render()}}}catch(e){}}
+async function loadPublic(){
+  const tries=[()=>fetch(API+'?_='+Date.now(),{headers:{Accept:'application/vnd.github.raw+json'}}),()=>fetch('projects.json?'+Date.now())];
+  for(const f of tries){try{const r=await f();if(r.ok){const d=await r.json();if(Array.isArray(d)){items=d;render();return}}}catch(e){}}
+}
 function gh(method,body){
   return fetch(method==='GET'?API+'?_='+Date.now():API,{method,headers:{Authorization:'Bearer '+store.get('ghtoken'),Accept:'application/vnd.github+json'},body:body&&JSON.stringify(body)});
 }
