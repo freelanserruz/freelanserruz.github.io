@@ -273,16 +273,15 @@ async function loadPublic(){
 function gh(method,body){
   return fetch(method==='GET'?API+'?_='+Date.now():API,{method,headers:{Authorization:'Bearer '+store.get('ghtoken'),Accept:'application/vnd.github+json'},body:body&&JSON.stringify(body)});
 }
+async function fail(r){let m='';try{m=(await r.json()).message||''}catch(e){}throw{st:r.status,msg:m}}
 async function mutate(fn){
   const g=await gh('GET');let sha,list=[];
-  if(g.status===401||g.status===403)throw'auth';
-  if(g.ok){const j=await g.json();sha=j.sha;list=JSON.parse(dec(j.content))}else if(g.status!==404)throw'err';
+  if(g.ok){const j=await g.json();sha=j.sha;list=JSON.parse(dec(j.content))}else if(g.status!==404)await fail(g);
   list=fn(list);
   const body={message:'projects update',content:enc(JSON.stringify(list,null,1))};
   if(sha)body.sha=sha;
   const r=await gh('PUT',body);
-  if([401,403,404].includes(r.status))throw'auth';
-  if(!r.ok)throw'err';
+  if(!r.ok)await fail(r);
   items=list;render();
 }
 async function remove(id){if(admin){try{await mutate(l=>l.filter(r=>r.id!==id))}catch(e){}}}
@@ -296,8 +295,11 @@ $('#pf').onsubmit=async e=>{
   n.textContent=t.saving;
   try{await mutate(l=>[...l,rec]);n.textContent=t.pr_ok;$('#pf').reset();$('#pk').hidden=true}
   catch(err){
-    if(err==='auth'){try{localStorage.removeItem('ghtoken')}catch(x){}$('#pk').hidden=false;n.textContent=t.tk_bad}
-    else n.textContent=t.pr_err;
+    if(err&&err.st){
+      if(err.st===401){try{localStorage.removeItem('ghtoken')}catch(x){}}
+      $('#pk').hidden=false;
+      n.textContent=([401,403,404].includes(err.st)?t.tk_bad:t.pr_err)+' ['+err.st+(err.msg?': '+err.msg:'')+']';
+    }else n.textContent=t.pr_err;
   }
 };
 loadPublic();
